@@ -1,7 +1,8 @@
 import time
 import itertools
 import copy
-import set
+
+NBLINE = 0
 
 """ Implementation of the Apriori Algorithm
 Input:
@@ -15,8 +16,9 @@ def apriori_based(inputFile, threshold, outputFile):
 
     print 'begin extract'
     data = generateItem(inputFile)
-    print 'second step'
-    Lk = findItemSet(data, threshold)
+    # print 'data', data
+    print 'second step ', int(NBLINE*0.9)
+    Lk = findItemSet(data, int(NBLINE*0.9))
     print 'third step'
     writeItemsSet(Lk, outputFile)
 
@@ -33,14 +35,15 @@ def findItemSet(data, sup_min):
 
     print 'ici1'
     Lk = extractItem(data)
-    # print 'Lk', Lk
+    print 'Lk', Lk
     guard = 0
-    maxIt = len(Lk['candidates'])
+    maxIt = len(Lk.keys())
     k = 1
-    while Lk['candidates'] and guard < maxIt:
+    while Lk and guard < maxIt:
         print 'i: ', guard
         # Generate Candidate with a size k
         Ck = generateCandidateFromLk(Lk, k)
+        print len(Ck)
         # print 'Ck', Ck
 
         # Count apparition of itemset on data
@@ -49,6 +52,7 @@ def findItemSet(data, sup_min):
 
         # Keep only itemset with a frequency above the limit
         # Lk = filter((lambda x: x > sup_min), Ck)
+
         Lk = removeBelowLimit(Ck_, sup_min)
         # print 'Lk', Lk
 
@@ -60,38 +64,12 @@ def findItemSet(data, sup_min):
     return Lk_save
 
 
-
-
-def extractItem(data):
-    items = []
-
-    for line in data:
-        for item in line:
-            if item not in items:
-                items.append(item)
-
-    items.sort()
-    return {'candidates': [[str(key)] for key in items]}
-
-
-
-def removeBelowLimit(list, threshold):
-    candidate = list['candidates']
-    Lk = {}
-    newItem = []
-    index = 0
-    for c in range(0, len(candidate)):
-        if list[str(c)] > threshold:
-            newItem.append(candidate[c])
-            Lk[index] = list[str(c)]
-            index += 1
-
-    Lk['candidates'] = newItem
-    return Lk
-
-
-NBLINE = 0
-
+""" Get data from a file
+Input:
+    - Filename = String
+Output:
+    - [ frozenset( order1, order2, ...) ]
+"""
 def generateItem(filenameInput):
     global NBLINE
     array = []
@@ -99,40 +77,45 @@ def generateItem(filenameInput):
     with open(filenameInput, "r") as lines:
         for line in lines:
             NBLINE += 1
-            array.append(line.strip().split(" "))
+            array.append(frozenset([int(key) for key in line.strip().split(" ")]))
 
+    print 'NBLINE', NBLINE
     return array
 
 
-def writeItemsSet(Lk, filename):
-
-    file = open(filename, "w+")
-
-    nbSize = len(Lk)
-    for i in range(0, nbSize):
-        for s in range(0, len(Lk[i]['candidates'])):
-            file.write(" ".join(Lk[i]['candidates'][s]) + ' (' + str(Lk[i][s]) + ') \n')
-
-
-
-""" From a set of value: [ A,...] generate all combinations with a dimension k+1
+""" Extract unique element
 Input:
-    - Lk: Dico('value', ... 'candidate')
+    - data: [ frozenset( item1, item2, ...), ....]
+Output:
+    - { frozenset( item1, ...):0, ... }
+"""
+def extractItem(data):
+    items = frozenset([])
+
+    for line in data:
+        items = items.union(line)
+    print 'extractItem', 'items', len(items)
+    return {frozenset([key]): 0 for key in items}
+
+
+""" From a frozenset of value: [ A,...] generate all combinations with a dimension k+1
+Input:
+    - Lk: Dico(frozenset1: 1, frozenset2: 2, ...)
     - nb_items: size of packet
+Output:
+    - frozenset( frozenset( item1, item2,...), ...)
 """
 def generateCandidateFromLk(Lk, nb_items):
     # Extract primitive element of key
-    prim_elements = []
-    for key in Lk['candidates']:
-        for k in key:
-            if k not in prim_elements:
-                prim_elements.append(k)
+    # print 'generateCandidateFromLk',' Lk', Lk
+    prim_elements = frozenset()
+    for key in Lk.keys():
+        prim_elements = prim_elements.union(key)
 
-    print prim_elements
+    # print 'generateCandidateFromLk ', 'prim_elements', prim_elements
     # Generate all permutation with k elements
-    comb = list(itertools.combinations(prim_elements, nb_items))
+    comb = [frozenset(key) for key in itertools.combinations(prim_elements, nb_items)]
 
-    comb = [list(s) for s in comb]
     return comb
 
 
@@ -144,23 +127,38 @@ Output:
     - Dico( 'value': frequency )
 """
 def countCandidate(data, Ck):
-    if not Ck:
-        return {'candidates': []}
-    Lk = {str(i): 0 for i in range(0, len(Ck))}
-    nbElement = len(Ck[0])
-    for line in data:
-        for key in range(0, len(Ck)):
-            i = 0
-            while i < nbElement and Ck[key][i] in line:
-                i += 1
-            if i == nbElement:
-                Lk[str(key)] += 1
+    Lk = {i: 0 for i in Ck}
+    # nbElement = len(Ck[0])
+    for setItems in Ck:
+        for line in data:
+            if setItems <= line:
+                Lk[setItems] += 1
 
-    for key in Lk:
-        Lk[key] /= float(NBLINE)
+    # for key in Lk:
+    #     Lk[key] /= float(NBLINE)
 
-    Lk['candidates'] = Ck
+    # print 'countCandidate', 'k', Lk
     return Lk
+
+
+def removeBelowLimit(list, threshold):
+    Lk = copy.deepcopy(list)
+    for setItems in list:
+        if list[setItems] < threshold:
+            Lk.pop(setItems)
+
+    return Lk
+
+
+def writeItemsSet(Lk, filename):
+
+    file = open(filename, "w+")
+
+    nbSize = len(Lk)
+    for i in range(0, nbSize):
+        for s in Lk[i].keys():
+            # file.write(" ".join([str(it) for it in s]) + ' (' + str(Lk[i][s]*NBLINE) + ') \n')
+            file.write(" ".join([str(it) for it in s]) + ' (' + str(Lk[i][s]) + ') \n')
 
 
 
@@ -176,7 +174,10 @@ if __name__ == '__main__':
     # print generateCandidateFromLk(data, 3)
     start_time = time.clock()
 
-    print apriori_based("Data/chess.dat", 0.8, "Data/chess_output.dat")
-    # print apriori_based("Data/mushroom.dat", , "Data/mushroom_output.dat")
+    # print apriori_based("Data/chess.dat", 0.8, "Data/chess_output2.dat")
+    # print apriori_based("Data/chess.dat", 3000, "Data/chess_output3.dat")
+    # print apriori_based("Data/mushroom.dat", 3000, "Data/mushroom_output.dat")
+    print apriori_based("Data/pumsb.dat", 3000, "Data/pumsb_output.dat")
 
-    print("--- %s seconds ---" % (time.clock() - start_time))
+    # print("--- %s seconds ---" % (time.clock() - start_time))
+    print("%s seconds" % (time.clock() - start_time))
