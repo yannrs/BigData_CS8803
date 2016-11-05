@@ -1,0 +1,20 @@
+Name;Fold 1;Fold 2;Fold 3;Fold 4;Mean;Std;ExtraFold 6/4;Time
+DecisionTreeClassifier (depth = 2);0,56;0,60;0,58;0,63;0,59;0,03;0,55;0,01
+DecisionTreeClassifier (depth = 5);0,56;0,55;0,67;0,54;0,58;0,05;0,60;0,01
+GaussianNB;0,40;0,45;0,44;0,29;0,40;0,07;0,31;0,01
+SVC (kernel = 'linear');0,53;0,55;0,65;0,63;0,59;0,05;0,58;0,02
+SVC (kernel = 'rbf');0,44;0,64;0,73;0,67;0,62;0,11;0,55;0,02
+LogisticRegression;0,56;0,51;0,54;0,65;0,57;0,05;0,52;0,03
+;;;;;;;;
+;;;;;;;;
+BaggingClassifier (KNN);0,54;0,58;0,67;0,60;0,60;0,05;0,59;0,14
+BaggingClassifier (LogisticRegression);0,39;0,43;0,48;0,63;0,48;0,09;0,47;0,20
+BaggingClassifier (DecisionTreeClassifier);0,60;0,58;0,58;0,63;0,60;0,02;0,53;0,18
+BaggingClassifier (GaussianNB);0,23;0,64;0,33;0,31;0,38;0,16;0,33;0,12
+BaggingClassifier (SVM);0,56;0,58;0,63;0,71;0,62;0,06;0,51;0,17
+AdaBoostClassifier;0,33;0,72;0,52;0,42;0,50;0,14;0,50;3,71
+ExtraTreesClassifier;0,65;0,68;0,77;0,79;0,72;0,06;0,70;5,11
+GradientBoostingClassifier;0,70;0,62;0,73;0,54;0,65;0,07;0,63;4,97
+RandomForestClassifier;0,65;0,60;0,77;0,69;0,68;0,06;0,66;0,19
+VotingClassifier (soft);0,44;0,60;0,52;0,44;0,50;0,07;0,38;0,24
+VotingClassifier (hard);0,60;0,51;0,65;0,67;0,61;0,06;0,57;0,24
