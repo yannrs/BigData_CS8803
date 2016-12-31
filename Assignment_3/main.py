@@ -163,35 +163,18 @@ def removeBelowLimit(list, threshold):
 def writeItemsSet(Lk, filename):
     file = open(filename, "w+")
 
-    # Lk = sorted(Lk, key=lambda k: k['distance'])
     nbSize = len(Lk)
     for i in range(0, nbSize):
-        # for s in Lk[i].keys():
-        for s,itm in sorted(Lk[i].iteritems(), key=lambda (item, support): support, reverse=True):
+        for s in Lk[i].keys():
             file.write(" ".join([str(it) for it in s]) + ' (' + str(Lk[i][s]) + ') \n')
 
-def sortFile(fileName):
-    file = open(fileName, 'r')
 
-    setline = []
-    for line in file.readlines():
-        setline.append({'set': line.strip().split('(')[0], 'support': int(line.strip().split('(')[1].split(')')[0])})
-
-    file.close()
-    setline = sorted(setline, key=lambda k: k['support'])
-
-    fileOut = open(fileName, 'w')
-    for line in setline:
-        fileOut.write(line['set'] + '(' + str(line['support']) + ')\n')
-
-    fileOut.close()
 
 if __name__ == '__main__':
     start_time = time.clock()
 
 	## Threshold but as 80% of the total number of line
-    print apriori_based("Data/chess.dat", 3000, "Data/chess_output.dat")
-    sortFile("Data/chess_output.dat")
+    print apriori_based("Data/chess.dat", 2556, "Data/chess_output.dat")
     # print apriori_based("Data/chess_custom.dat", 2556, "Data/chess_custom_output3.dat")
 	
     # print apriori_based("Data/mushroom.dat", 3000, "Data/mushroom_output.dat")

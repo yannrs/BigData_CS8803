@@ -21,7 +21,7 @@ from sklearn import preprocessing
 
 
 
-path = "C:\Users\yann\Documents\Mes fichiers\Cours\GeorgiaTech\Fall 2016\CS   8803 - Big Data Systems and Analytics\Assignments\Programming 4\Data\\"
+path = ".\Data\\"
 
 
 """ Function to test one method of classification
@@ -87,16 +87,6 @@ def saveResults(filename, dico):
     file.close()
 
 
-def GaussianTest(X, y):
-    gnb = GaussianNB()
-    y_pred = gnb.fit(X, y).predict(X)
-    print("Number of mislabeled points out of a total %d points : %d"
-      % (X.shape[0], (y != y_pred).sum()))
-    scores = cross_val_score(gnb, X, y, cv=4)   # Scores computed cv=5 times
-    print scores
-    return gnb
-
-
 
 if __name__ == '__main__':
     # Models
@@ -118,21 +108,21 @@ if __name__ == '__main__':
 
     # Dataset
     # ## First input data
-    # filename = "agaricus-lepiota.data"
-    # X = importFile(filename, 8124, 23)
-    # le = preprocessing.LabelEncoder()   # Great the object to convert string to vector
-    # X_ = np.zeros((8124, 23))
-    # for col in range(0, 23):
-    #     le.fit(np.transpose(X[:, col]))
-    #     X_[:, col] = le.transform(X[:, col])
-    # y = X_[:, 0]
-    # X = X_[:, 1:]
+    filename = "agaricus-lepiota.data"
+    X = importFile(filename, 8124, 23)
+    le = preprocessing.LabelEncoder()   # Great the object to convert string to vector
+    X_ = np.zeros((8124, 23))
+    for col in range(0, 23):
+        le.fit(np.transpose(X[:, col]))
+        X_[:, col] = le.transform(X[:, col])
+    y = X_[:, 0]
+    X = X_[:, 1:]
 
-    ## Second test
-    filename = "glass.data"
-    X = np.loadtxt(path + filename, delimiter=",")
-    y = X[:, 10]
-    X = X[:, 1:-1]
+    # ## Second test
+    # filename = "glass.data"
+    # X = np.loadtxt(path + filename, delimiter=",")
+    # y = X[:, 10]
+    # X = X[:, 1:-1]
 
 
     listResults = []
